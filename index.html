@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Voucher Code Generator - Tahaniah Ticketing Outlet</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        .info {
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+        .codes {
+            margin-top: 20px;
+        }
+        .codes div {
+            font-size: 18px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        button {
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .expired {
+            color: red;
+            font-weight: bold;
+        }
+        .qr-code {
+            margin-left: 20px;
+        }
+        .contact-info {
+            margin-top: 20px;
+            font-size: 16px;
+        }
+        .admin-section {
+            margin-top: 40px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .verification-message {
+            margin-top: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            color: green;
+        }
+        .login-section {
+            margin-top: 20px;
+            display: none; /* Hide the login section by default */
+        }
+    </style>
+</head>
+<body>
+    <h1>Tahaniah Ticketing Outlet - Random Voucher Code Generator</h1>
+
+    <div class="info">
+        <p><strong>Agency Name:</strong> Tahaniah Ticketing Outlet Travel and Tours</p>
+        <p><strong>Contact Number:</strong> 09454170137</p>
+        <p><strong>Email:</strong> abutahanie01@gmail.com</p>
+        <p><strong>Facebook:</strong> <a href="https://www.facebook.com/babyshark231989" target="_blank">babyshark231989</a></p>
+        <p><strong>Legitimacy:</strong> We are a legitimate travel agency offering flight bookings, travel arrangements, and tours with official IATA accreditation and trusted services. We aim to provide the best travel solutions to our customers.</p>
+    </div>
+
+    <p>Click the button below to generate a random voucher code with a discount. The code expires on November 15, 2024.</p>
+    
+    <button id="generateBtn" onclick="generateRandomVoucher()">Generate Random Voucher Code</button>
+    
+    <div class="codes" id="voucherCodes"></div>
+
+    <div class="admin-section">
+        <h2>Admin Login</h2>
+        <input type="text" id="adminUsername" placeholder="Username" />
+        <input type="password" id="adminPassword" placeholder="Password" />
+        <button onclick="login()">Login</button>
+
+        <div class="login-section" id="loginSection">
+            <h2>Admin Verification</h2>
+            <input type="text" id="voucherInput" placeholder="Enter Voucher Code" />
+            <button onclick="verifyVoucher()">Verify Voucher Code</button>
+            <div class="verification-message" id="verificationMessage"></div>
+        </div>
+    </div>
+
+    <script>
+        const expirationDate = new Date("2024-11-15");
+        let currentVoucher = null; // Store the current voucher for verification
+        let currentDiscount = null; // Store the current discount for verification
+        const adminUsername = "Abutahaniah"; // Set your username here
+        const adminPassword = "!Abutahanie01"; // Set your password here
+
+        // Check if the user has already generated a voucher
+        if (localStorage.getItem('voucherGenerated') === 'true') {
+            document.getElementById('generateBtn').disabled = true;
+            document.getElementById('generateBtn').textContent = 'Voucher Already Generated';
+        }
+
+        function generateRandomVoucher() {
+            // Check if a voucher was already generated
+            if (localStorage.getItem('voucherGenerated') === 'true') {
+                alert('You have already generated a voucher!');
+                return;
+            }
+
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let code = '';
+            for (let j = 0; j < 8; j++) {
+                code += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+
+            // Generate random discount between 100 and 200 PHP
+            let discount = Math.floor(Math.random() * (200 - 100 + 1)) + 100;
+
+            // Generate QR code URL using Google Charts API
+            let qrCodeUrl = `https://chart.googleapis.com/chart?cht=qr&chs=150x150&chl=${encodeURIComponent(code)}&choe=UTF-8`;
+
+            let voucherHTML = `
+                <div>
+                    Voucher Code: <strong>${code}</strong> - Discount: ₱${discount} 
+                    - <span class="expired">Expires on: ${expirationDate.toDateString()}</span>
+                    <img class="qr-code" src="${qrCodeUrl}" alt="QR Code">
+                </div>
+            `;
+            
+            // Store the current voucher and discount for verification
+            currentVoucher = code;
+            currentDiscount = discount;
+
+            // Display the voucher code
+            document.getElementById('voucherCodes').innerHTML = voucherHTML;
+
+            // Disable the button after voucher generation
+            document.getElementById('generateBtn').disabled = true;
+            document.getElementById('generateBtn').textContent = 'Voucher Already Generated';
+
+            // Store in localStorage that the voucher has been generated
+            localStorage.setItem('voucherGenerated', 'true');
+        }
+
+        function login() {
+            const username = document.getElementById('adminUsername').value;
+            const password = document.getElementById('adminPassword').value;
+
+            if (username === adminUsername && password === adminPassword) {
+                document.getElementById('loginSection').style.display = 'block'; // Show the verification section
+                document.querySelector('.admin-section h2').textContent = "Admin Verification";
+                document.getElementById('adminUsername').style.display = 'none';
+                document.getElementById('adminPassword').style.display = 'none';
+                document.querySelector('.admin-section button').style.display = 'none'; // Hide the login button
+            } else {
+                alert("Invalid username or password!");
+            }
+        }
+
+        function verifyVoucher() {
+            const inputCode = document.getElementById('voucherInput').value.trim();
+            const messageElement = document.getElementById('verificationMessage');
+
+            if (inputCode === currentVoucher) {
+                messageElement.textContent = `Voucher is valid! Discount: ₱${currentDiscount}`;
+                messageElement.style.color = "green";
+            } else {
+                messageElement.textContent = "Invalid voucher code!";
+                messageElement.style.color = "red";
+            }
+        }
+    </script>
+
+    <div class="contact-info">
+        <p><strong>For more inquiries, contact us:</strong></p>
+        <p><strong>Phone:</strong> 09454170137</p>
+        <p><strong>Email:</strong> abutahanie01@gmail.com</p>
+        <p><strong>Facebook:</strong> <a href="https://www.facebook.com/babyshark231989" target="_blank">babyshark231989</a></p>
+    </div>
+</body>
+</html>
